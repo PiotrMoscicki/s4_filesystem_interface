@@ -10,3 +10,5 @@ GenerateSourceGoups("${S4_FS_SRCS}")
 add_library(${S4_FS_TARGET} INTERFACE ${S4_FS_SRCS})
 target_compile_features(${S4_FS_TARGET} INTERFACE cxx_std_20)
 target_include_directories(${S4_FS_TARGET} INTERFACE ${S4_FS_INCLUDE})
+
+target_link_libraries(${S4_FS_TARGET} INTERFACE s4_rtti)

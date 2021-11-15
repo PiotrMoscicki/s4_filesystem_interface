@@ -45,6 +45,15 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${S4_FS_PROJECT_FULL_DIST_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${S4_FS_PROJECT_FULL_DIST_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${S4_FS_PROJECT_FULL_DIST_DIR})
 
+include(FetchContent)
+FetchContent_Declare(
+  s4_rtti
+  GIT_REPOSITORY "https://github.com/PiotrMoscicki/s4_rtti"
+  GIT_TAG "main"
+)
+
+FetchContent_MakeAvailable(s4_rtti)
+
 # Target names
 set(S4_FS_TARGET s4_fs)
 
