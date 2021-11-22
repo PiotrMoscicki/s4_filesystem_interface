@@ -1,7 +1,9 @@
 #pragma once
 
 #include <string>
-#include <variant>
+#include <sstream>
+
+#include <rtti/rtti.hpp>
 
 namespace fs {
 
@@ -44,37 +46,17 @@ namespace fs {
     //*********************************************************************************************
     //*********************************************************************************************
     //*********************************************************************************************
-    template <typename OK, typename ERROR>
-    class Res final {
-    public:
-        Res(OK ok) : m_result(std::move(ok)) {}
-        Res(ERROR err) : m_result(std::move(err)) {}
-
-        bool is_ok() const { return std::holds_alternative<OK>(m_result); }
-        bool is_err() const { return std::holds_alternative<ERROR>(m_result); }
-
-        const OK& ok() const { return std::get<OK>(m_result); }
-        const ERROR& ok() const { return std::get<ERROR>(m_result); }
-
-    private:
-        std::variant<OK, ERROR> m_result;
-
-    }; // class Result
-
-    //*********************************************************************************************
-    //*********************************************************************************************
-    //*********************************************************************************************
     class Path {
     public:
-        static char NAME_SEPARATOR = '/';
-        static char EXT_SEPARATOR = '.';
+        inline static char NAME_SEPARATOR = '/';
+        inline static char EXT_SEPARATOR = '.';
 
         Path() = default;
         Path(std::string path) : m_path(std::move(path)) { extract_name_and_ext(); }
 
         const std::string& path() const { return m_path; } 
         const std::string& name() const { return m_name; }
-        const std::string& ext() const { return ext; }
+        const std::string& ext() const { return m_ext; }
 
     private:
         void extract_name_and_ext() {
@@ -106,12 +88,12 @@ namespace fs {
         virtual bool is_file(const Path& path) const = 0;
 
         virtual Res<Path, ErrAdd> add(const Path& parent, const std::string& relative_path) = 0;
-        virtual Res<ErrRemove> remove(const Path& path) = 0;
+        virtual Res<void, ErrRemove> remove(const Path& path) = 0;
         virtual Res<Path, ErrRename> rename(const Path& path, const std::string& new_name) = 0;
         virtual Res<Path, ErrMove> move(const Path& path, const Path& new_parent) = 0;
 
         virtual Res<rtti::Buffer, ErrRead> read(const Path& path) const = 0;
-        virtual Res<ErrWrite> write(const Path& path, const rtti::Buffer& buf) const = 0;
+        virtual Res<void, ErrWrite> write(const Path& path, const rtti::Buffer& buf) const = 0;
 
     }; // class IFilesystem
 
