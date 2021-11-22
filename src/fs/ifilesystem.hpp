@@ -1,47 +1,12 @@
 #pragma once
 
-#include <string>
-#include <sstream>
-
-#include <rtti/rtti.hpp>
+#include <core/str/string_id.hpp>
+#include <core/util/res.hpp>
+#include <rtti/buffer.hpp>
 
 namespace fs {
-
-    enum class ErrParent {
-        INVALID_PATH
-    };
-
-    enum class ErrChildrenCount {
-        UNDEFINED
-    };
-    
-    enum class ErrChild {
-        UNDEFINED
-    };
-    
-    enum class ErrAdd {
-        UNDEFINED
-    };
-    
-    enum class ErrRemove {
-        UNDEFINED
-    };
-    
-    enum class ErrRename {
-        UNDEFINED
-    };
-    
-    enum class ErrMove {
-        UNDEFINED
-    };
-    
-    enum class ErrRead {
-        UNDEFINED
-    };
-    
-    enum class ErrWrite {
-        UNDEFINED
-    };
+    using namespace core::str;
+    using namespace core::util;
 
     //*********************************************************************************************
     //*********************************************************************************************
@@ -52,25 +17,31 @@ namespace fs {
         inline static char EXT_SEPARATOR = '.';
 
         Path() = default;
-        Path(std::string path) : m_path(std::move(path)) { extract_name_and_ext(); }
+        Path(StringId path) : m_path(path) { extract_name_and_ext(); }
+        bool operator==(const fs::Path& other) const { return m_path == other.m_path; }
+        bool operator<(const fs::Path& other) const { return m_path < other.m_path; }
 
-        const std::string& path() const { return m_path; } 
-        const std::string& name() const { return m_name; }
-        const std::string& ext() const { return m_ext; }
+        StringId path() const { return m_path; } 
+        StringId name() const { return m_name; }
+        StringId ext() const { return m_ext; }
 
     private:
         void extract_name_and_ext() {
-            std::istringstream stream(m_path);
+            std::istringstream stream(m_path.get());
             std::string last_path_elem;
             while (getline(stream, last_path_elem, NAME_SEPARATOR)) {}
             stream = std::istringstream(last_path_elem);
-            getline(stream, m_name, EXT_SEPARATOR);
-            getline(stream, m_ext);
+            std::string name;
+            std::string extension;
+            getline(stream, name, EXT_SEPARATOR);
+            getline(stream, extension);
+            m_name = StringId(name);
+            m_ext = StringId(extension);
         }
 
-        std::string m_path;
-        std::string m_name;
-        std::string m_ext;
+        StringId m_path;
+        StringId m_name;
+        StringId m_ext;
 
     }; // class Path
 
@@ -79,6 +50,42 @@ namespace fs {
     //*********************************************************************************************
     class IFilesystem {
     public:
+        enum class ErrParent {
+            UNDEFINED
+        };
+
+        enum class ErrChildrenCount {
+            UNDEFINED
+        };
+        
+        enum class ErrChild {
+            UNDEFINED
+        };
+        
+        enum class ErrAdd {
+            UNDEFINED
+        };
+        
+        enum class ErrRemove {
+            UNDEFINED
+        };
+        
+        enum class ErrRename {
+            UNDEFINED
+        };
+        
+        enum class ErrMove {
+            UNDEFINED
+        };
+        
+        enum class ErrRead {
+            UNDEFINED
+        };
+        
+        enum class ErrWrite {
+            UNDEFINED
+        };
+        
         virtual Path root() const = 0;
         virtual Res<Path, ErrParent> parent(const Path& path) const = 0;
         virtual Res<size_t, ErrChildrenCount> children_count(const Path& path) const = 0;
